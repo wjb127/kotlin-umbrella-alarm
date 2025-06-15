@@ -90,6 +90,19 @@ dependencies {
     // SharedPreferences
     implementation("androidx.preference:preference-ktx:1.2.1")
 
+    // ☂️ 우산 알림 기능을 위한 추가 의존성
+    // WorkManager (백그라운드 작업)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.hilt:hilt-work:1.1.0")
+    kapt("androidx.hilt:hilt-compiler:1.1.0")
+    
+    // 위치 서비스
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    
+    // 권한 요청
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
