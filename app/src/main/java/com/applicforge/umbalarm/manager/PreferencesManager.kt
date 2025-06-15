@@ -128,10 +128,10 @@ class PreferencesManager @Inject constructor(
     }
     
     /**
-     * 알림 종료 시간 가져오기 (기본값: 21시)
+     * 알림 종료 시간 가져오기 (기본값: 19시)
      */
     fun getNotificationEndHour(): Int {
-        return prefs.getInt(KEY_NOTIFICATION_END_HOUR, 21)
+        return prefs.getInt(KEY_NOTIFICATION_END_HOUR, 19)
     }
     
     /**

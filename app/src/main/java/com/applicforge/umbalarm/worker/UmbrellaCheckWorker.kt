@@ -75,8 +75,8 @@ class UmbrellaCheckWorker @AssistedInject constructor(
     private suspend fun sendUmbrellaNotification() {
         val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
         
-        // 6시 이후에만 알림 발송
-        if (currentHour >= 6) {
+        // 출근길(6-8시)과 퇴근길(17-19시)에만 알림 발송
+        if ((currentHour in 6..8) || (currentHour in 17..19)) {
             val lastNotificationTime = preferencesManager.getLastUmbrellaNotificationTime()
             val currentTime = System.currentTimeMillis()
             val hoursSinceLastNotification = (currentTime - lastNotificationTime) / (1000 * 60 * 60)
@@ -85,10 +85,8 @@ class UmbrellaCheckWorker @AssistedInject constructor(
             if (hoursSinceLastNotification >= 1) {
                 val title = "☂️ 우산을 챙기세요!"
                 val message = when (currentHour) {
-                    in 6..8 -> "오늘 비가 올 예정이에요. 출근할 때 우산을 챙기세요!"
-                    in 9..11 -> "곧 비가 올 수 있어요. 외출 시 우산을 준비하세요!"
-                    in 12..17 -> "오후에 비가 올 예정이에요. 우산을 챙기세요!"
-                    in 18..20 -> "퇴근길에 비가 올 수 있어요. 우산을 준비하세요!"
+                    in 6..8 -> "오늘 비가 올 예정이에요! 출근할 때 우산을 꼭 챙기세요 🌧️"
+                    in 17..19 -> "퇴근길에 비가 올 수 있어요! 우산을 준비하세요 🌂"
                     else -> "비가 올 예정이에요. 우산을 챙기세요!"
                 }
 

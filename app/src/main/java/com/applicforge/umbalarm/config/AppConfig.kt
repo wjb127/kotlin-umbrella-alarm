@@ -106,8 +106,10 @@ object AppConfig {
     // ☂️ 우산 알림 관련 설정
     object Umbrella {
         const val RAIN_PROBABILITY_THRESHOLD = 30        // 비 확률 30% 이상시 알림
-        const val MORNING_ALERT_TIME = "07:00"          // 아침 알림 시간
-        const val EVENING_ALERT_TIME = "18:00"          // 저녁 알림 시간
+        const val MORNING_ALERT_START = 6                // 출근길 알림 시작 시간
+        const val MORNING_ALERT_END = 8                  // 출근길 알림 종료 시간
+        const val EVENING_ALERT_START = 17               // 퇴근길 알림 시작 시간
+        const val EVENING_ALERT_END = 19                 // 퇴근길 알림 종료 시간
         const val WEATHER_UPDATE_INTERVAL = 3600000L    // 1시간마다 날씨 업데이트 (ms)
     }
     
