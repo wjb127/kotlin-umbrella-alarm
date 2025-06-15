@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.test.simple"
+    namespace = "com.applicforge.umbalarm"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.test.simple"
+        applicationId = "com.applicforge.umbalarm"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

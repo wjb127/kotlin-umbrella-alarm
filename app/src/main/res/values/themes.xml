@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.TestApp" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.UmbrellaAlarm" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorSecondary</item>
@@ -11,7 +11,7 @@
     </style>
     
     <!-- 스플래시 화면 전용 테마 -->
-    <style name="Theme.TestApp.Splash" parent="Theme.TestApp">
+    <style name="Theme.UmbrellaAlarm.Splash" parent="Theme.UmbrellaAlarm">
         <!-- 스플래시 화면에서는 상태바를 투명하게 -->
         <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
         <item name="android:navigationBarColor" tools:targetApi="l">@android:color/transparent</item>
