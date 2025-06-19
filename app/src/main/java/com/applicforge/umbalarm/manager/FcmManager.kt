@@ -22,18 +22,23 @@ class FcmManager @Inject constructor(
     fun getToken(callback: (String?) -> Unit) {
         Log.d(TAG, "🔄 FCM 토큰 요청 시작...")
         
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w(TAG, "❌ FCM 토큰 가져오기 실패", task.exception)
-                Toast.makeText(context, "❌ FCM 토큰 획득 실패", Toast.LENGTH_SHORT).show()
-                callback(null)
-                return@addOnCompleteListener
-            }
+        try {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w(TAG, "❌ FCM 토큰 가져오기 실패", task.exception)
+                    Toast.makeText(context, "❌ FCM 토큰 획득 실패", Toast.LENGTH_SHORT).show()
+                    callback(null)
+                    return@addOnCompleteListener
+                }
 
-            val token = task.result
-            Log.d(TAG, "🔑 FCM 토큰 성공: ${token?.substring(0, 20)}...")
-            Toast.makeText(context, "✅ FCM 토큰 획득 성공!", Toast.LENGTH_SHORT).show()
-            callback(token)
+                val token = task.result
+                Log.d(TAG, "🔑 FCM 토큰 성공: ${token?.substring(0, 20)}...")
+                Toast.makeText(context, "✅ FCM 토큰 획득 성공!", Toast.LENGTH_SHORT).show()
+                callback(token)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Firebase 초기화 실패로 인한 토큰 요청 실패: ${e.message}")
+            callback(null)
         }
     }
     
@@ -54,32 +59,40 @@ class FcmManager @Inject constructor(
     fun subscribeToTopic(topicName: String) {
         Log.d(TAG, "🔔 토픽 구독 시도: $topicName")
         
-        FirebaseMessaging.getInstance().subscribeToTopic(topicName)
-            .addOnCompleteListener { task ->
-                val msg = if (task.isSuccessful) {
-                    "✅ 토픽 구독 성공: $topicName"
-                } else {
-                    "❌ 토픽 구독 실패: $topicName - ${task.exception?.message}"
+        try {
+            FirebaseMessaging.getInstance().subscribeToTopic(topicName)
+                .addOnCompleteListener { task ->
+                    val msg = if (task.isSuccessful) {
+                        "✅ 토픽 구독 성공: $topicName"
+                    } else {
+                        "❌ 토픽 구독 실패: $topicName - ${task.exception?.message}"
+                    }
+                    Log.d(TAG, msg)
+                    
+                    // Toast로 피드백 (개발용)
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 }
-                Log.d(TAG, msg)
-                
-                // Toast로 피드백 (개발용)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Firebase 초기화 실패로 토픽 구독 불가: $topicName - ${e.message}")
+        }
     }
     
     fun unsubscribeFromTopic(topicName: String) {
         Log.d(TAG, "🚫 토픽 구독 해제 시도: $topicName")
         
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(topicName)
-            .addOnCompleteListener { task ->
-                val msg = if (task.isSuccessful) {
-                    "✅ 토픽 구독 취소 성공: $topicName"
-                } else {
-                    "❌ 토픽 구독 취소 실패: $topicName - ${task.exception?.message}"
+        try {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(topicName)
+                .addOnCompleteListener { task ->
+                    val msg = if (task.isSuccessful) {
+                        "✅ 토픽 구독 취소 성공: $topicName"
+                    } else {
+                        "❌ 토픽 구독 취소 실패: $topicName - ${task.exception?.message}"
+                    }
+                    Log.d(TAG, msg)
                 }
-                Log.d(TAG, msg)
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Firebase 초기화 실패로 토픽 구독 해제 불가: $topicName - ${e.message}")
+        }
     }
     
     fun subscribeToBasicTopics() {
@@ -159,11 +172,16 @@ class FcmManager @Inject constructor(
     fun logFcmStatus() {
         Log.d(TAG, "📊 FCM 상태 확인")
         Log.d(TAG, "💾 Context: ${context.javaClass.simpleName}")
-        Log.d(TAG, "🎯 Firebase Messaging 인스턴스: ${FirebaseMessaging.getInstance()}")
         
-        // 토큰 다시 확인
-        getToken { token ->
-            Log.d(TAG, "🔍 현재 FCM 토큰 상태: ${if (token != null) "정상" else "없음"}")
+        try {
+            Log.d(TAG, "🎯 Firebase Messaging 인스턴스: ${FirebaseMessaging.getInstance()}")
+            
+            // 토큰 다시 확인
+            getToken { token ->
+                Log.d(TAG, "🔍 현재 FCM 토큰 상태: ${if (token != null) "정상" else "없음"}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Firebase 초기화 실패로 FCM 상태 확인 불가: ${e.message}")
         }
     }
 } 

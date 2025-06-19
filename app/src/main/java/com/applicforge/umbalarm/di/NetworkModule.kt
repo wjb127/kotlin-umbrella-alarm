@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
-    private const val BASE_URL = "https://remote-config-node-express.onrender.com/"
+    private const val BASE_URL = "https://remote-config-supabase.vercel.app/"
     
     @Provides
     @Singleton

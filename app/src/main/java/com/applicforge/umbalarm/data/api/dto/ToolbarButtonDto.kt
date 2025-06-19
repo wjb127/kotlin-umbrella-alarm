@@ -9,6 +9,10 @@ data class ToolbarButtonDto(
     val icon: String,
     @SerializedName("title")
     val title: String,
-    @SerializedName("action")
-    val action: String
+    @SerializedName("action_type")
+    val actionType: String? = null,
+    @SerializedName("action_value")
+    val actionValue: String? = null,
+    @SerializedName("order_index")
+    val orderIndex: Int? = null
 ) 

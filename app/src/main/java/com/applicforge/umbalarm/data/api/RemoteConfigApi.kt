@@ -26,7 +26,7 @@ data class AppInfoDto(
     val updated_at: String
 )
 
-// Config API 통합 응답용 DTO
+// Config API 통합 응답용 DTO (기존)
 data class ConfigResponseDto(
     val message: String,
     val timestamp: String,
@@ -39,6 +39,21 @@ data class ConfigResponseDto(
     val buttons: List<ButtonDto>? = null // buttons 추가
 )
 
+// 새로운 Supabase 서버 응답용 DTO
+data class SupabaseConfigResponseDto(
+    val success: Boolean,
+    val data: SupabaseConfigDataDto
+)
+
+data class SupabaseConfigDataDto(
+    val app: AppInfoDto,
+    val menus: List<MenuDto>,
+    val toolbars: List<ToolbarDto>,
+    val fcm_topics: List<FcmTopicDto>,
+    val styles: List<StyleDto>? = null,
+    val buttons: List<ButtonDto>? = null
+)
+
 // API 응답 래퍼 DTO
 data class ApiResponseWrapper<T>(
     val success: Boolean,
@@ -49,7 +64,11 @@ data class ApiResponseWrapper<T>(
 
 interface RemoteConfigApi {
     
-    // 통합 설정 조회
+    // 통합 설정 조회 (새로운 서버 - 패키지명 기반)
+    @GET("api/config/{packageName}")
+    suspend fun getAppConfigByPackage(@Path("packageName") packageName: String): Response<SupabaseConfigResponseDto>
+    
+    // 통합 설정 조회 (기존)
     @GET("api/config/{appId}")
     suspend fun getAppConfig(@Path("appId") appId: String): Response<ConfigResponseDto>
     

@@ -55,7 +55,17 @@ import com.applicforge.umbalarm.domain.model.Menu
 import com.applicforge.umbalarm.domain.model.ActionType
 import com.applicforge.umbalarm.domain.model.MenuType
 import com.applicforge.umbalarm.domain.model.Button
+import com.applicforge.umbalarm.domain.model.ToolbarButton
 import com.applicforge.umbalarm.presentation.ui.components.DynamicBottomActionBar
+import com.applicforge.umbalarm.domain.model.WeatherInfo
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.FilledTonalButton
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -184,6 +194,26 @@ fun MainScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
+    // 디버그 로그 추가
+    LaunchedEffect(uiState) {
+        Log.d("MainScreen", "🔍 UI State 업데이트!")
+        Log.d("MainScreen", "📋 전체 툴바 개수: ${uiState.toolbars.size}")
+        uiState.toolbars.forEachIndexed { index, toolbar ->
+            Log.d("MainScreen", "🔧 툴바 $index: ${toolbar.title} (위치: ${toolbar.position}, 버튼 개수: ${toolbar.buttons.size})")
+            toolbar.buttons.forEachIndexed { btnIndex, button ->
+                Log.d("MainScreen", "  🔘 버튼 $btnIndex: ${button.title} (${button.icon})")
+            }
+        }
+        Log.d("MainScreen", "📋 전체 메뉴 개수: ${uiState.menus.size}")
+        uiState.menus.forEachIndexed { index, menu ->
+            Log.d("MainScreen", "📱 메뉴 $index: ${menu.title} (아이콘: ${menu.icon})")
+        }
+        Log.d("MainScreen", "📋 전체 버튼 개수: ${uiState.buttons.size}")
+        uiState.buttons.forEachIndexed { index, button ->
+            Log.d("MainScreen", "🔘 버튼 $index: ${button.title} (타입: ${button.buttonType})")
+        }
+    }
+    
     // 툴바 필터링 (visible한 것만)
     val topToolbars = uiState.toolbars.filter { it.position == ToolbarPosition.TOP && it.isVisible }
     val bottomToolbars = uiState.toolbars.filter { it.position == ToolbarPosition.BOTTOM && it.isVisible }
@@ -291,6 +321,22 @@ fun MainScreen(
                 }
             }
 
+            // ☂️ 날씨 기반 우산 알림 카드
+            if (uiState.weatherMessage.isNotEmpty()) {
+                item {
+                    WeatherAlarmCard(
+                        weatherMessage = uiState.weatherMessage,
+                        rainProbability = uiState.rainProbability,
+                        isRainyDay = uiState.isRainyDay,
+                        weatherInfo = uiState.weatherInfo,
+                        onSetAlarmClick = {
+                            // 알림 설정 페이지로 이동
+                            navController.navigate("menu")
+                        }
+                    )
+                }
+            }
+            
             // 메인 콘텐츠 영역 - 깔끔한 사용자 경험을 위해 개발용 섹션들 제거됨
             // FCM 토픽 관리는 메뉴에서, 스타일과 툴바는 서버에서 완전히 관리됨
             item {
@@ -308,7 +354,7 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "🚀",
+                            text = "☂️",
                             fontSize = 48.sp,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -324,7 +370,7 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         Text(
-                            text = "Server-Driven UI 기반 앱",
+                            text = "날씨 API 기반 스마트 우산 알림",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                             textAlign = TextAlign.Center
@@ -333,7 +379,7 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         Text(
-                            text = "메뉴에서 알림 설정 및 다양한 기능들을 확인해보세요!",
+                            text = "비가 올 때마다 알림으로 우산을 챙겨드려요!",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
@@ -872,7 +918,7 @@ fun DynamicToolbar(
 
 @Composable
 private fun ToolbarActionButton(
-    button: com.test.simple.domain.model.ToolbarButton,
+    button: ToolbarButton,
     textColor: Color,
     onClick: () -> Unit
 ) {
@@ -955,6 +1001,167 @@ private fun handleButtonClick(button: Button, navController: NavController) {
         ActionType.API_CALL -> {
             // API 호출 처리 (여기서는 로그만 출력)
             println("API call triggered: ${button.actionValue}")
+        }
+    }
+}
+
+// ☂️ 날씨 기반 우산 알림 카드 컴포넌트
+@Composable
+fun WeatherAlarmCard(
+    weatherMessage: String,
+    rainProbability: Double,
+    isRainyDay: Boolean,
+    weatherInfo: WeatherInfo?,
+    onSetAlarmClick: () -> Unit
+) {
+    // 날씨에 따른 색상 계산
+    val cardColor = if (isRainyDay) {
+        Color(0xFF1E88E5) // 파란색 (비 오는 날)
+    } else {
+        Color(0xFFFF9800) // 오렌지색 (맑은 날)
+    }
+    
+    val textColor = Color.White
+    
+    // 날씨 아이콘 선택
+    val weatherIcon = when (weatherInfo?.weatherType) {
+        com.applicforge.umbalarm.domain.model.WeatherType.STORMY -> "⛈️" // 폭풍
+        com.applicforge.umbalarm.domain.model.WeatherType.RAINY -> "☔" // 비
+        com.applicforge.umbalarm.domain.model.WeatherType.SNOWY -> "❄️" // 눈
+        com.applicforge.umbalarm.domain.model.WeatherType.SUNNY -> "☀️" // 맑음
+        com.applicforge.umbalarm.domain.model.WeatherType.CLOUDY -> "☁️" // 구름
+        else -> "🌤️" // 기본값
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 날씨 아이콘과 확률
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 날씨 아이콘
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = weatherIcon,
+                        fontSize = 30.sp
+                    )
+                }
+                
+                // 비올 확률
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "비올 확률",
+                        color = textColor.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "${rainProbability.toInt()}%",
+                        color = textColor,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 메인 메시지
+            Text(
+                text = weatherMessage,
+                color = textColor,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                lineHeight = 24.sp
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // 액션 버튼들
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // 알림 설정 버튼 (메인)
+                FilledTonalButton(
+                    onClick = onSetAlarmClick,
+                    modifier = Modifier.weight(1f),
+                    colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color.White,
+                        contentColor = cardColor
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (isRainyDay) "알림 설정하기" else "알림 관리",
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                
+                // 현재 날씨 정보 칩
+                AssistChip(
+                    onClick = { /* 날씨 상세 정보 */ },
+                    label = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = weatherInfo?.currentTemp?.toInt()?.toString() ?: "--",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "°C",
+                                fontSize = 12.sp
+                            )
+                        }
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.WbSunny,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    colors = androidx.compose.material3.AssistChipDefaults.assistChipColors(
+                        containerColor = Color.White.copy(alpha = 0.2f),
+                        labelColor = textColor,
+                        leadingIconContentColor = textColor
+                    ),
+                    border = androidx.compose.material3.AssistChipDefaults.assistChipBorder(
+                        borderColor = Color.White.copy(alpha = 0.3f)
+                    )
+                )
+            }
         }
     }
 } 

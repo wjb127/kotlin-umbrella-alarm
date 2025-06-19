@@ -45,12 +45,19 @@ object ConfigMapper {
         )
     }
     
-    fun mapToolbarButtonDtoToDomain(dto: com.test.simple.data.api.dto.ToolbarButtonDto): com.test.simple.domain.model.ToolbarButton {
-        return com.test.simple.domain.model.ToolbarButton(
+    fun mapToolbarButtonDtoToDomain(dto: ToolbarButtonDto): ToolbarButton {
+        // actionType과 actionValue를 합쳐서 action 만들기
+        val action = if (dto.actionType != null && dto.actionValue != null) {
+            "${dto.actionType}:${dto.actionValue}"
+        } else {
+            null
+        }
+        
+        return ToolbarButton(
             id = dto.id,
             icon = dto.icon,
             title = dto.title,
-            action = dto.action
+            action = action
         )
     }
     
@@ -119,13 +126,14 @@ object ConfigMapper {
         )
     }
     
-    fun mapConfigResponseDtoToDomain(dto: com.test.simple.data.api.ConfigResponseDto): AppConfig {
-        return AppConfig(
-            menus = dto.menus.map { mapMenuDtoToDomain(it) },
-            toolbars = dto.toolbars.map { mapToolbarDtoToDomain(it) },
-            styles = dto.styles?.map { mapStyleDtoToDomain(it) } ?: emptyList(),
-            fcmTopics = dto.fcm_topics.map { mapFcmTopicDtoToDomain(it) },
-            buttons = dto.buttons?.map { mapButtonDtoToDomain(it) } ?: emptyList()
-        )
-    }
+    // ConfigResponseDto가 없는 경우 이 함수를 주석 처리합니다
+    // fun mapConfigResponseDtoToDomain(dto: ConfigResponseDto): AppConfig {
+    //     return AppConfig(
+    //         menus = dto.menus.map { mapMenuDtoToDomain(it) },
+    //         toolbars = dto.toolbars.map { mapToolbarDtoToDomain(it) },
+    //         styles = dto.styles?.map { mapStyleDtoToDomain(it) } ?: emptyList(),
+    //         fcmTopics = dto.fcm_topics.map { mapFcmTopicDtoToDomain(it) },
+    //         buttons = dto.buttons?.map { mapButtonDtoToDomain(it) } ?: emptyList()
+    //     )
+    // }
 } 

@@ -39,11 +39,11 @@ interface WeatherApi {
         const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
         
         // 날씨 상태 ID 상수들
-        const val THUNDERSTORM_GROUP = 200..299  // 뇌우
-        const val DRIZZLE_GROUP = 300..399       // 이슬비
-        const val RAIN_GROUP = 500..599          // 비
-        const val SNOW_GROUP = 600..699          // 눈
+        val THUNDERSTORM_GROUP = 200..299  // 뇌우
+        val DRIZZLE_GROUP = 300..399       // 이슬비
+        val RAIN_GROUP = 500..599          // 비
+        val SNOW_GROUP = 600..699          // 눈
         const val CLEAR_SKY = 800                // 맑음
-        const val CLOUDS_GROUP = 801..899        // 구름
+        val CLOUDS_GROUP = 801..899        // 구름
     }
 } 
